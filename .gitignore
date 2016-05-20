@@ -186,3 +186,9 @@ vignettes/*.pdf
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth
 
+# some folders with intermediate results
+/Code/results/xgb_results_283
+/Code/results/xgb_results_753
+/Code/results/grid-results-xgb_283.csv
+/Code/results/svm
+/Code/results/rf
