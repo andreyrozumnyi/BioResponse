@@ -187,8 +187,8 @@ vignettes/*.pdf
 .httr-oauth
 
 # some folders with intermediate results
-/Code/results/xgb_results_283
-/Code/results/xgb_results_753
+/Code/results/xgb_results_283/*
+/Code/results/xgb_results_753/*
 /Code/results/grid-results-xgb_283.csv
-/Code/results/svm
-/Code/results/rf
+/Code/results/svm/*
+/Code/results/rf/*
