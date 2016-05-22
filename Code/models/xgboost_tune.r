@@ -1,7 +1,6 @@
 rm(list=ls())
 library(xgboost)
 library(ggplot2)
-#library(reshape)
 library(MASS)
 library(ROCR)
 library(foreach)
@@ -33,14 +32,14 @@ max_depth=4:7
 colsample_bytree = c(0.85,0.8,1)
 subsample = c(0.8,0.95,1)
 lambda = c(0,1,3)
+# combine all parameters into data frame
 N = expand.grid(folds,eta,max_depth,colsample_bytree,subsample,lambda)
 results = as.data.frame(N)
 names(results)=c("folds","eta","max_depth","colsample_bytree","subsample","lambda")
 results$bestLoss = -1
 results$bestRound = -1
 
-
-cur_time = proc.time()
+# main loop for estimating different parameters
 for (i in 1:nrow(N)) {
     print(i)
     param <- list(objective  = "binary:logistic",
@@ -51,22 +50,18 @@ for (i in 1:nrow(N)) {
                   colsample_bytree  = N[i,4],
                   subsample  = N[i,5],
                   lambda = N[i,6])
-    
+    # use early stoping to speed up the process
     CV_current = xgb.cv(params <- param, data <- dtrain, early.stop.round=100, nrounds <- round(10/N[i,2]), 
                         nfold <- N[i,1], nthread = nodes, maximize = FALSE)
-    #     CV_current = xgb.cv(params <- param, data <- dtrain, nrounds <- round(10/N[i,2]), nfold <- N[i,1], 
-    #                         maximize = FALSE)
-    CV_current$LosswoSD = CV_current$test.logloss.mean # - CV_current$test.logloss.std
-    results$bestLoss[i] = min(CV_current$LosswoSD)
-    results$bestRound[i]=which.min(CV_current$LosswoSD)
-    write.table(results,file="grid-results-xgb.csv",quote = FALSE,
+    CV_current$Loss = CV_current$test.logloss.mean
+    results$bestLoss[i] = min(CV_current$Loss)
+    results$bestRound[i] = which.min(CV_current$Loss)
+    # may change the name of file for intermediate results if you need
+    write.table(results, file="../results/grid-results-xgb.csv", quote = FALSE,
                 append = FALSE, col.names=TRUE, row.names=FALSE, sep=",")
 }
-time_elapsed = proc.time()-cur_time
-print(time_elapsed)
 
 bestres = which.min(results$bestLoss)
-
 # best params from X-VALIDATION
 param <- list(
     objective  = "binary:logistic",
@@ -79,7 +74,7 @@ param <- list(
     lambda = N[bestres,6],
     nthread=nodes
 )
-
+# train with the best parameters from earlier tuning
 clf <- xgb.train(
     params= param,
     data  = dtrain,
@@ -92,8 +87,9 @@ clf <- xgb.train(
 test$PredictedProbability <- -1
 Test <- sparse.model.matrix(PredictedProbability ~ ., data = test)
 test$ID <- NULL
-
+# make a prediction for test data
 preds <- predict(clf, Test)
-
+# make data.frame with final results
 submission <- data.frame(MoleculeId=seq(1, nrow(test), 1), PredictedProbability=preds)
-write.csv(submission, "../submissions/submission-xgboost_1.csv", row.names = F)
+# you may change the name and the path to the file for submission
+write.csv(submission, "../results/submission-xgboost_1.csv", row.names = F)
