@@ -1,0 +1,4 @@
+- xgboost_tune.R script for tuning xgboost parameters
+- xgboost_run.R script for creating submissions with top N results from tuning with different number of rounds
+- randomForest.R baseline tuning for randomForest
+- svm.r tuning for svm using tune method. it gives us only the best set of parameters

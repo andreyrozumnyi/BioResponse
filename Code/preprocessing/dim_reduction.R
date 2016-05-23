@@ -12,6 +12,10 @@ pca <- prcomp(pca_data, scale. = TRUE)
 
 # let's have a look info about the components
 summary(pca)
+# visualize results
+vars <- apply(pca$x, 2, var)
+props <- vars / sum(vars)
+plot(cumsum(props), xlab="PCA component", ylab="Cumulative variance")
 
 # let's make reduction to specified number of components
 components_numb <- 1646

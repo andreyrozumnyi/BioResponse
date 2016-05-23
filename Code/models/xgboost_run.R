@@ -27,7 +27,7 @@ top_N <- 10
 run <- data[order(data$bestLoss)[1:top_N], ]
 
 set.seed(123)
-nodes = 4
+nodes = 2
 for(p in 1:top_N){
     param <- list(
         objective  = "binary:logistic",
@@ -52,7 +52,6 @@ for(p in 1:top_N){
             watchlist  = watchlist,
             maximize  = FALSE
         )
-        
         
         test <- as.data.frame(test)
         test$PredictedProbability <- -1
